@@ -1030,8 +1030,10 @@ private:
 
     if(status[IR_SD] || status[IR_SD_RECT])
     {
+      /*
       ir = cv::Mat(irFrame->height, irFrame->width, CV_32FC1, irFrame->data);
       ir.convertTo(images[IR_SD], CV_16U);
+      */
     }
 
     listenerIrDepth->release(frames);
@@ -1089,8 +1091,8 @@ private:
     if(status[COLOR_SD_RECT])
     {
       lockRegSD.lock();
-      memcpy(this->color.data, colorFrame->data, sizeColor.width * sizeColor.height * 4);
-      this->color.format = colorFrame->format;
+      //memcpy(this->color.data, colorFrame->data, sizeColor.width * sizeColor.height * 4);
+      //this->color.format = colorFrame->format;
       lockRegSD.unlock();
     }
     if(status[COLOR_HD] || status[COLOR_HD_RECT] || status[COLOR_QHD] || status[COLOR_QHD_RECT] ||
@@ -1168,6 +1170,7 @@ private:
   void processIrDepth(const cv::Mat &depth, std::vector<cv::Mat> &images, const std::vector<Status> &status)
   {
     // COLOR registered to depth
+    /*
     if(status[COLOR_SD_RECT])
     {
       cv::Mat tmp;
@@ -1187,45 +1190,52 @@ private:
         cv::cvtColor(tmp, images[COLOR_SD_RECT], cv::COLOR_RGBA2BGR);
       }
     }
+    */
 
     // IR
     if(status[IR_SD] || status[IR_SD_RECT])
     {
-      cv::flip(images[IR_SD], images[IR_SD], 1);
+      //cv::flip(images[IR_SD], images[IR_SD], 1);
     }
     if(status[IR_SD_RECT])
     {
-      cv::remap(images[IR_SD], images[IR_SD_RECT], map1Ir, map2Ir, cv::INTER_AREA);
+      //cv::remap(images[IR_SD], images[IR_SD_RECT], map1Ir, map2Ir, cv::INTER_AREA);
     }
 
     // DEPTH
     cv::Mat depthShifted;
+    /*
     if(status[DEPTH_SD])
     {
       depth.convertTo(images[DEPTH_SD], CV_16U, 1);
       cv::flip(images[DEPTH_SD], images[DEPTH_SD], 1);
     }
+    */
     if(status[DEPTH_SD_RECT] || status[DEPTH_QHD] || status[DEPTH_HD])
     {
       depth.convertTo(depthShifted, CV_16U, 1, depthShift);
       cv::flip(depthShifted, depthShifted, 1);
     }
+    /*
     if(status[DEPTH_SD_RECT])
     {
       cv::remap(depthShifted, images[DEPTH_SD_RECT], map1Ir, map2Ir, cv::INTER_NEAREST);
     }
+    */
     if(status[DEPTH_QHD])
     {
       lockRegLowRes.lock();
       depthRegLowRes->registerDepth(depthShifted, images[DEPTH_QHD]);
       lockRegLowRes.unlock();
     }
+    /*
     if(status[DEPTH_HD])
     {
       lockRegHighRes.lock();
       depthRegHighRes->registerDepth(depthShifted, images[DEPTH_HD]);
       lockRegHighRes.unlock();
     }
+    */
   }
 
   void processColor(std::vector<cv::Mat> &images, const std::vector<Status> &status)
@@ -1233,7 +1243,7 @@ private:
     // COLOR
     if(status[COLOR_HD_RECT] || status[MONO_HD_RECT])
     {
-      cv::remap(images[COLOR_HD], images[COLOR_HD_RECT], map1Color, map2Color, cv::INTER_AREA);
+      //cv::remap(images[COLOR_HD], images[COLOR_HD_RECT], map1Color, map2Color, cv::INTER_AREA);
     }
     if(status[COLOR_QHD] || status[MONO_QHD])
     {
@@ -1241,10 +1251,11 @@ private:
     }
     if(status[COLOR_QHD_RECT] || status[MONO_QHD_RECT])
     {
-      cv::remap(images[COLOR_HD], images[COLOR_QHD_RECT], map1LowRes, map2LowRes, cv::INTER_AREA);
+      //cv::remap(images[COLOR_HD], images[COLOR_QHD_RECT], map1LowRes, map2LowRes, cv::INTER_AREA);
     }
 
     // MONO
+    /*
     if(status[MONO_HD])
     {
       cv::cvtColor(images[COLOR_HD], images[MONO_HD], cv::COLOR_BGR2GRAY);
@@ -1261,6 +1272,7 @@ private:
     {
       cv::cvtColor(images[COLOR_QHD_RECT], images[MONO_QHD_RECT], cv::COLOR_BGR2GRAY);
     }
+    */
   }
 
   void publishImages(const std::vector<cv::Mat> &images, const std_msgs::Header &header, const std::vector<Status> &status, const size_t frame, size_t &pubFrame, const size_t begin, const size_t end)
@@ -1294,6 +1306,15 @@ private:
 
     for(size_t i = begin; i < end; ++i)
     {
+      if(i == COLOR_QHD_RECT || i == DEPTH_QHD)
+      {
+        // keep going
+      }
+      else
+      {
+        continue;
+      }
+
       if(i < DEPTH_HD || i == COLOR_SD_RECT)
       {
         _header.frame_id = baseNameTF + K2_TF_IR_OPT_FRAME;
@@ -1331,6 +1352,15 @@ private:
     lockPub.lock();
     for(size_t i = begin; i < end; ++i)
     {
+      if(i == COLOR_QHD_RECT || i == DEPTH_QHD)
+      {
+        // keep going
+      }
+      else
+      {
+        continue;
+      }
+
       switch(status[i])
       {
       case UNSUBCRIBED:
