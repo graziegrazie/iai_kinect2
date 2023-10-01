@@ -1088,6 +1088,7 @@ private:
     frame = frameColor++;
 
     cv::Mat color = cv::Mat(colorFrame->height, colorFrame->width, CV_8UC4, colorFrame->data);
+    /*
     if(status[COLOR_SD_RECT])
     {
       lockRegSD.lock();
@@ -1095,6 +1096,7 @@ private:
       //this->color.format = colorFrame->format;
       lockRegSD.unlock();
     }
+    */
     if(status[COLOR_HD] || status[COLOR_HD_RECT] || status[COLOR_QHD] || status[COLOR_QHD_RECT] ||
        status[MONO_HD] || status[MONO_HD_RECT] || status[MONO_QHD] || status[MONO_QHD_RECT])
     {
@@ -1193,6 +1195,7 @@ private:
     */
 
     // IR
+    /*
     if(status[IR_SD] || status[IR_SD_RECT])
     {
       //cv::flip(images[IR_SD], images[IR_SD], 1);
@@ -1201,6 +1204,7 @@ private:
     {
       //cv::remap(images[IR_SD], images[IR_SD_RECT], map1Ir, map2Ir, cv::INTER_AREA);
     }
+    */
 
     // DEPTH
     cv::Mat depthShifted;
@@ -1241,6 +1245,7 @@ private:
   void processColor(std::vector<cv::Mat> &images, const std::vector<Status> &status)
   {
     // COLOR
+    /*
     if(status[COLOR_HD_RECT] || status[MONO_HD_RECT])
     {
       //cv::remap(images[COLOR_HD], images[COLOR_HD_RECT], map1Color, map2Color, cv::INTER_AREA);
@@ -1249,9 +1254,10 @@ private:
     {
       cv::resize(images[COLOR_HD], images[COLOR_QHD], sizeLowRes, 0, 0, cv::INTER_AREA);
     }
+    */
     if(status[COLOR_QHD_RECT] || status[MONO_QHD_RECT])
     {
-      //cv::remap(images[COLOR_HD], images[COLOR_QHD_RECT], map1LowRes, map2LowRes, cv::INTER_AREA);
+      cv::remap(images[COLOR_HD], images[COLOR_QHD_RECT], map1LowRes, map2LowRes, cv::INTER_AREA);
     }
 
     // MONO
@@ -1382,14 +1388,14 @@ private:
     {
       if(infoIRPub.getNumSubscribers() > 0)
       {
-        infoIRPub.publish(infoIRMsg);
+        //infoIRPub.publish(infoIRMsg);
       }
     }
     else
     {
       if(infoHDPub.getNumSubscribers() > 0)
       {
-        infoHDPub.publish(infoHDMsg);
+        //infoHDPub.publish(infoHDMsg);
       }
       if(infoQHDPub.getNumSubscribers() > 0)
       {
